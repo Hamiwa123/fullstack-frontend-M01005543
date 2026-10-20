@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> After School Lesson </title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"> </script>
+</head>
+<body>
+    <div id="app">
+        <h1 v-text="title"></h1>
+        <img v-bind:src="lesson.image" v-bind:alt="lesson.imageAlt" width="300">
+        <h2 v-text="lesson.subject"></h2>
+        <p> Location: {{lesson.location}}</p>
+        <p> Price: £{{lesson.price}}</p>
+    </div>
+
+    <script type="module">
+        const {createApp} = Vue
+        const lessonsApp = createApp({
+            data(){
+                return{
+                    title: "After-School Lessons",
+                    lesson: {
+                        subject: "Computer Science",
+                        location: "Hendon",
+                        price: 35,
+                        image: "images/compSciPic.jpg",
+                        imageAlt: "Students Coding"
+                    }
+                }
+            }
+        })
+        lessonsApp.mount('#app')
+    </script>
+</body>
+</html>
