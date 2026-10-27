@@ -9,21 +9,37 @@
     <div id="app">
         <h1 v-text="title"></h1>
 
-        <button v-on:click="toggleCart()" v-bind:disabled="numberOfItems == 0">Checkout ({{numberOfItems}})</button>
+        <button v-on:click="toggleCart()" v-bind:disabled="numberOfItems == 0 && !displayCart">Cart ({{numberOfItems}})</button>
 
         <div v-if="!displayCart">
-            <img v-bind:src="lesson.image" v-bind:alt="lesson.imageAlt" width="300">
-            <h2 v-text="lesson.subject"></h2>
-            <p> Location: {{lesson.location}}</p>
-            <p> Price: £{{lesson.price}}</p>
-            <p> Spaces: {{lesson.availability}}</p>
-            <button v-on:click="addToCart()" v-bind:disabled="!canAddToCart">Add to cart</button>
+            <div v-for="lesson in lessons">
+                <img v-bind:src="lesson.image" v-bind:alt="lesson.imageAlt" width="300">
+                <h2 v-text="lesson.subject"></h2>
+                <p> Location: {{lesson.location}}</p>
+                <p> Price: £{{lesson.price}}</p>
+                <p> Spaces: {{lesson.availability}}</p>
+                <button v-on:click="addToCart(lesson)" v-bind:disabled="!canAddToCart(lesson)">Add to cart</button>
+            </div>
         </div>
 
         <div v-else>
             <h2> Checkout </h2>
+
+            <h3>Your cart</h3>
+            <div v-for="lesson in lessons">
+                <p v-if="cartCount(lesson.id) > 0">
+                {{lesson.subject}} x {{cartCount(lesson.id)}}
+                <button v-on:click="removeFromCart(lesson)">Remove</button>
+            </p>
         </div>
+
+        <h3>Your details</h3>
+        <p> Name: <input v-model="order.name"></p>
+        <p> Phone: <input v-model="order.phone"></p>
+        <button v-on:click="checkout()" v-bind:disabled="!canCheckout">Checkout</button>
+        <p>{{confirmationMessage}}</p>
     </div>
+</div>
 
     <script type="module">
         const {createApp} = Vue
@@ -31,34 +47,80 @@
             data(){
                 return{
                     title: "After-School Lessons",
-                    lesson: {
-                        id: 1001,
-                        subject: "Computer Science",
-                        location: "Hendon",
-                        price: 35,
-                        image: "images/compSciPic.jpg",
-                        imageAlt: "Students Coding",
-                        availability: 5
-                    },
+                    lessons: [
+                        {
+                            id: 1001,
+                            subject: "Computer Science",
+                            location: "Hendon",
+                            price: 35,
+                            image: "images/compSciPic.jpg",
+                            imageAlt: "Students Coding",
+                            availability: 5
+                        },
+                        {
+                            id: 1002,
+                            subject: "Physics",
+                            location: "Hendon",
+                            price: 30,
+                            image: "images/physicsPic.jpg",
+                            imageAlt: "Image of a particle",
+                            availability: 5
+                        },
+                        {
+                            id: 1003,
+                            subject: "Maths",
+                            location: "Hendon",
+                            price: 25,
+                            image: "images/mathsPic.jpg",
+                            imageAlt: "Picture of algebra",
+                            availability: 5
+                        }
+                    ],
                     cart: [],
-                    displayCart: false
+                    displayCart: false,
+                    order: {
+                        name: "",
+                        phone: ""
+                    },
+                    confirmationMessage: ""
                 }
             },
             computed:{
-                canAddToCart(){
-                    return this.lesson.availability > 0
-                },
                 numberOfItems(){
                     return this.cart.length
+                },
+                canCheckout(){
+                    return this.order.name != "" && this.order.phone != ""
                 }
             },
             methods:{
-                addToCart(){
-                    this.cart.push(this.lesson.id);
-                    this.lesson.availability = this.lesson.availability - 1;
+                addToCart(lesson){
+                    this.cart.push(lesson.id);
+                    lesson.availability = lesson.availability - 1;
+                },
+                canAddToCart(lesson){
+                    return lesson.availability > 0
+                },
+                checkout(){
+                    this.confirmationMessage = "Thank you, " + this.order.name + ", order confirmed."
+                    this.cart = [];
+                },
+                cartCount(id){
+                    let count = 0;
+                    for (let i = 0; i < this.cart.length; i++){
+                        if (this.cart[i] == id){
+                            count++;
+                        }
+                    }
+                    return count;
+                },
+                removeFromCart(lesson){
+                    let index = this.cart.indexOf(lesson.id);
+                    this.cart.splice(index, 1);
+                    lesson.availability = lesson.availability + 1;
                 },
                 toggleCart(){
-                    this.displayCart = !this.displayCart
+                    this.displayCart = !this.displayCart;
                 }
             }
         })
