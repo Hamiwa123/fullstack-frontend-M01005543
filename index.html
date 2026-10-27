@@ -8,10 +8,21 @@
 <body>
     <div id="app">
         <h1 v-text="title"></h1>
-        <img v-bind:src="lesson.image" v-bind:alt="lesson.imageAlt" width="300">
-        <h2 v-text="lesson.subject"></h2>
-        <p> Location: {{lesson.location}}</p>
-        <p> Price: £{{lesson.price}}</p>
+
+        <button v-on:click="toggleCart()" v-bind:disabled="numberOfItems == 0">Checkout ({{numberOfItems}})</button>
+
+        <div v-if="!displayCart">
+            <img v-bind:src="lesson.image" v-bind:alt="lesson.imageAlt" width="300">
+            <h2 v-text="lesson.subject"></h2>
+            <p> Location: {{lesson.location}}</p>
+            <p> Price: £{{lesson.price}}</p>
+            <p> Spaces: {{lesson.availability}}</p>
+            <button v-on:click="addToCart()" v-bind:disabled="!canAddToCart">Add to cart</button>
+        </div>
+
+        <div v-else>
+            <h2> Checkout </h2>
+        </div>
     </div>
 
     <script type="module">
@@ -21,12 +32,33 @@
                 return{
                     title: "After-School Lessons",
                     lesson: {
+                        id: 1001,
                         subject: "Computer Science",
                         location: "Hendon",
                         price: 35,
                         image: "images/compSciPic.jpg",
-                        imageAlt: "Students Coding"
-                    }
+                        imageAlt: "Students Coding",
+                        availability: 5
+                    },
+                    cart: [],
+                    displayCart: false
+                }
+            },
+            computed:{
+                canAddToCart(){
+                    return this.lesson.availability > 0
+                },
+                numberOfItems(){
+                    return this.cart.length
+                }
+            },
+            methods:{
+                addToCart(){
+                    this.cart.push(this.lesson.id);
+                    this.lesson.availability = this.lesson.availability - 1;
+                },
+                toggleCart(){
+                    this.displayCart = !this.displayCart
                 }
             }
         })
