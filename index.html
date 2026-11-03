@@ -1,18 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title> After School Lesson </title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"> </script>
 </head>
+
 <body>
     <div id="app">
         <h1 v-text="title"></h1>
 
-        <button v-on:click="toggleCart()" v-bind:disabled="numberOfItems == 0 && !displayCart">Cart ({{numberOfItems}})</button>
+        <button v-on:click="toggleCart()" v-bind:disabled="numberOfItems == 0 && !displayCart">Cart
+            ({{numberOfItems}})</button>
 
         <div v-if="!displayCart">
-            <div v-for="lesson in lessons">
+            <p>Sort by:
+                <select v-model="sortType">
+                    <option value="subject">Subject</option>
+                    <option value="location">Location</option>
+                    <option value="price">Price</option>
+                    <option value="availability">Spaces</option>
+                </select>
+                <input type="radio" v-model="sortAscending" v-bind:value="true"> Ascending
+                <input type="radio" v-model="sortAscending" v-bind:value="false"> Descending
+            </p>
+
+            <div v-for="lesson in sortedLessons">
                 <img v-bind:src="lesson.image" v-bind:alt="lesson.imageAlt" width="300">
                 <h2 v-text="lesson.subject"></h2>
                 <p> Location: {{lesson.location}}</p>
@@ -28,24 +42,24 @@
             <h3>Your cart</h3>
             <div v-for="lesson in lessons">
                 <p v-if="cartCount(lesson.id) > 0">
-                {{lesson.subject}} x {{cartCount(lesson.id)}}
-                <button v-on:click="removeFromCart(lesson)">Remove</button>
-            </p>
-        </div>
+                    {{lesson.subject}} x {{cartCount(lesson.id)}}
+                    <button v-on:click="removeFromCart(lesson)">Remove</button>
+                </p>
+            </div>
 
-        <h3>Your details</h3>
-        <p> Name: <input v-model="order.name"></p>
-        <p> Phone: <input v-model="order.phone"></p>
-        <button v-on:click="checkout()" v-bind:disabled="!canCheckout">Checkout</button>
-        <p>{{confirmationMessage}}</p>
+            <h3>Your details</h3>
+            <p> Name: <input v-model="order.name"></p>
+            <p> Phone: <input v-model="order.phone"></p>
+            <button v-on:click="checkout()" v-bind:disabled="!canCheckout">Checkout</button>
+            <p>{{confirmationMessage}}</p>
+        </div>
     </div>
-</div>
 
     <script type="module">
-        const {createApp} = Vue
+        const { createApp } = Vue
         const lessonsApp = createApp({
-            data(){
-                return{
+            data() {
+                return {
                     title: "After-School Lessons",
                     lessons: [
                         {
@@ -82,49 +96,70 @@
                         name: "",
                         phone: ""
                     },
-                    confirmationMessage: ""
+                    confirmationMessage: "",
+                    sortType: "price",
+                    sortAscending: true
                 }
             },
-            computed:{
-                numberOfItems(){
+            created() {
+                this.fetchData()
+            },
+            computed: {
+                numberOfItems() {
                     return this.cart.length
                 },
-                canCheckout(){
+                canCheckout() {
                     return this.order.name != "" && this.order.phone != ""
+                },
+                sortedLessons() {
+                    let sortType = this.sortType;
+                    let ascending = this.sortAscending;
+                    function compare(a, b) {
+                        if (a[sortType] > b[sortType]) return ascending ? 1 : -1;
+                        if (a[sortType] < b[sortType]) return ascending ? -1 : 1;
+                        return 0;
+                    }
+                    return this.lessons.slice().sort(compare);
                 }
             },
-            methods:{
-                addToCart(lesson){
+            methods: {
+                addToCart(lesson) {
                     this.cart.push(lesson.id);
                     lesson.availability = lesson.availability - 1;
                 },
-                canAddToCart(lesson){
+                canAddToCart(lesson) {
                     return lesson.availability > 0
                 },
-                checkout(){
+                checkout() {
                     this.confirmationMessage = "Thank you, " + this.order.name + ", order confirmed."
                     this.cart = [];
                 },
-                cartCount(id){
+                cartCount(id) {
                     let count = 0;
-                    for (let i = 0; i < this.cart.length; i++){
-                        if (this.cart[i] == id){
+                    for (let i = 0; i < this.cart.length; i++) {
+                        if (this.cart[i] == id) {
                             count++;
                         }
                     }
                     return count;
                 },
-                removeFromCart(lesson){
+                removeFromCart(lesson) {
                     let index = this.cart.indexOf(lesson.id);
                     this.cart.splice(index, 1);
                     lesson.availability = lesson.availability + 1;
                 },
-                toggleCart(){
+                toggleCart() {
                     this.displayCart = !this.displayCart;
+                },
+                async fetchData() {
+                    const url = "http://localhost:3000/"
+                    let response = await (fetch(url));
+                    this.lessons = await response.json();
                 }
             }
         })
         lessonsApp.mount('#app')
     </script>
 </body>
+
 </html>
