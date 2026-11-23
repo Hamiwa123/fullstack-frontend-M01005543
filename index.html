@@ -61,35 +61,7 @@
             data() {
                 return {
                     title: "After-School Lessons",
-                    lessons: [
-                        {
-                            id: 1001,
-                            subject: "Computer Science",
-                            location: "Hendon",
-                            price: 35,
-                            image: "images/compSciPic.jpg",
-                            imageAlt: "Students Coding",
-                            availability: 5
-                        },
-                        {
-                            id: 1002,
-                            subject: "Physics",
-                            location: "Hendon",
-                            price: 30,
-                            image: "images/physicsPic.jpg",
-                            imageAlt: "Image of a particle",
-                            availability: 5
-                        },
-                        {
-                            id: 1003,
-                            subject: "Maths",
-                            location: "Hendon",
-                            price: 25,
-                            image: "images/mathsPic.jpg",
-                            imageAlt: "Picture of algebra",
-                            availability: 5
-                        }
-                    ],
+                    lessons: [],
                     cart: [],
                     displayCart: false,
                     order: {
@@ -153,7 +125,7 @@
                 },
                 async fetchData() {
                     const url = "http://localhost:3000/"
-                    let response = await (fetch(url));
+                    let response = await fetch(url);
                     this.lessons = await response.json();
                 }
             }
