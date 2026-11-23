@@ -27,7 +27,7 @@
             </p>
 
             <div v-for="lesson in sortedLessons">
-                <img v-bind:src="lesson.image" v-bind:alt="lesson.imageAlt" width="300">
+                <img v-bind:src="imageAddress(lesson)" v-bind:alt="lesson.imageAlt" width="300">
                 <h2 v-text="lesson.subject"></h2>
                 <p> Location: {{lesson.location}}</p>
                 <p> Price: £{{lesson.price}}</p>
@@ -57,6 +57,7 @@
 
     <script type="module">
         const { createApp } = Vue
+        const BASE_URL = "http://localhost:3000"
         const lessonsApp = createApp({
             data() {
                 return {
@@ -126,9 +127,12 @@
                     this.displayCart = !this.displayCart;
                 },
                 async fetchData() {
-                    const url = "http://localhost:3000/lessons"
+                    const url = BASE_URL + "/lessons"
                     let response = await fetch(url);
                     this.lessons = await response.json();
+                },
+                imageAddress(lesson) {
+                    return BASE_URL + "/" + lesson.image;
                 }
             }
         })
