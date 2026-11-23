@@ -81,7 +81,9 @@
                     return this.cart.length
                 },
                 canCheckout() {
-                    return this.order.name != "" && this.order.phone != ""
+                    let nameOK = /^[A-Za-z]+( [A-Za-z]+)*$/.test(this.order.name);
+                    let phoneOK = /^[0-9]+$/.test(this.order.phone);
+                    return nameOK && phoneOK;
                 },
                 sortedLessons() {
                     let sortType = this.sortType;
