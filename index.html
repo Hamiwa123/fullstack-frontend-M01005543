@@ -105,8 +105,20 @@
                 canAddToCart(lesson) {
                     return lesson.availability > 0
                 },
-                checkout() {
-                    this.confirmationMessage = "Thank you, " + this.order.name + ", order confirmed."
+                async checkout() {
+                    let order = {
+                        name: this.order.name,
+                        phone: this.order.phone,
+                        lessonIDs: this.cart,
+                        spaces: this.cart.length
+                    };
+                    const options = {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(order)
+                    };
+                    let response = await fetch(BASE_URL + "/orders", options);
+                    this.confirmationMessage = "Thank you, " + this.order.name + ", order confirmed.";
                     this.cart = [];
                 },
                 cartCount(id) {
